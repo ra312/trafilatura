@@ -20,6 +20,7 @@ build/
 # evaluation
 results/
 venv/
+rustlib/target/
 
 # docs
 docs/_autosummary/
