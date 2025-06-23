@@ -88,30 +88,30 @@ def isutf8(data: bytes) -> bool:
     return True
 
 
-def detect_encoding(bytesobject: bytes) -> List[str]:
-    """ "Read all input or first chunk and return a list of encodings"""
-    # alternatives: https://github.com/scrapy/w3lib/blob/master/w3lib/encoding.py
-    # unicode-test
-    if isutf8(bytesobject):
-        return ["utf-8"]
-    guesses = []
-    # additional module
-    if cchardet_detect is not None:
-        cchardet_guess = cchardet_detect(bytesobject)["encoding"]
-        if cchardet_guess is not None:
-            guesses.append(cchardet_guess.lower())
-    # try charset_normalizer on first part, fallback on full document
-    if len(bytesobject) < 10000:
-        detection_results = from_bytes(bytesobject)
-    else:
-        detection_results = from_bytes(
-            bytesobject[:5000] + bytesobject[-5000:]
-        ) or from_bytes(bytesobject)
-    # return alternatives
-    if len(detection_results) > 0:
-        guesses.extend([r.encoding for r in detection_results])
-    # it cannot be utf-8 (tested above)
-    return [g for g in guesses if g not in UNICODE_ALIASES]
+# def detect_encoding(bytesobject: bytes) -> List[str]:
+#     """ "Read all input or first chunk and return a list of encodings"""
+#     # alternatives: https://github.com/scrapy/w3lib/blob/master/w3lib/encoding.py
+#     # unicode-test
+#     if isutf8(bytesobject):
+#         return ["utf-8"]
+#     guesses = []
+#     # additional module
+#     if cchardet_detect is not None:
+#         cchardet_guess = cchardet_detect(bytesobject)["encoding"]
+#         if cchardet_guess is not None:
+#             guesses.append(cchardet_guess.lower())
+#     # try charset_normalizer on first part, fallback on full document
+#     if len(bytesobject) < 10000:
+#         detection_results = from_bytes(bytesobject)
+#     else:
+#         detection_results = from_bytes(
+#             bytesobject[:5000] + bytesobject[-5000:]
+#         ) or from_bytes(bytesobject)
+#     # return alternatives
+#     if len(detection_results) > 0:
+#         guesses.extend([r.encoding for r in detection_results])
+#     # it cannot be utf-8 (tested above)
+#     return [g for g in guesses if g not in UNICODE_ALIASES]
 
 
 # def decode_file(filecontent: Union[bytes, str]) -> str:
