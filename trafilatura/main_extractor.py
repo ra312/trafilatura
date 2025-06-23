@@ -617,45 +617,45 @@ def prune_unwanted_sections(
     tree: HtmlElement, potential_tags: Set[str], options: Extractor
 ) -> HtmlElement:
     "Rule-based deletion of targeted document sections"
-    favor_precision = options.focus == "precision"
+    # favor_precision = options.focus == "precision"
     # prune the rest
     tree = prune_unwanted_nodes(tree, OVERALL_DISCARD_XPATH, with_backup=True)
     # decide if images are preserved
-    if "graphic" not in potential_tags:
-        tree = prune_unwanted_nodes(tree, DISCARD_IMAGE_ELEMENTS)
+    # if "graphic" not in potential_tags:
+    #     tree = prune_unwanted_nodes(tree, DISCARD_IMAGE_ELEMENTS)
     # balance precision/recall
-    if options.focus != "recall":
-        tree = prune_unwanted_nodes(tree, TEASER_DISCARD_XPATH)
-        if favor_precision:
-            tree = prune_unwanted_nodes(tree, PRECISION_DISCARD_XPATH)
+    # if options.focus != "recall":
+    tree = prune_unwanted_nodes(tree, TEASER_DISCARD_XPATH)
+    # if favor_precision:
+    #     tree = prune_unwanted_nodes(tree, PRECISION_DISCARD_XPATH)
     # remove elements by link density, several passes
     for _ in range(2):
         tree = delete_by_link_density(
-            tree, "div", backtracking=True, favor_precision=favor_precision
+            tree, "div", backtracking=True, favor_precision=False
         )
         tree = delete_by_link_density(
-            tree, "list", backtracking=False, favor_precision=favor_precision
+            tree, "list", backtracking=False, favor_precision=False
         )
         tree = delete_by_link_density(
-            tree, "p", backtracking=False, favor_precision=favor_precision
+            tree, "p", backtracking=False, favor_precision=False
         )
     # tables
-    if "table" in potential_tags or favor_precision:
+    if "table" in potential_tags:
         # tree = delete_by_link_density(tree, 'table', backtracking=False, favor_precision=favor_precision)
         for elem in tree.iter("table"):
             if link_density_test_tables(elem) is True:
                 delete_element(elem, keep_tail=False)
     # also filter fw/head, table and quote elements?
-    if favor_precision:
-        # delete trailing titles
-        while len(tree) > 0 and (tree[-1].tag == "head"):
-            delete_element(tree[-1], keep_tail=False)
-        tree = delete_by_link_density(
-            tree, "head", backtracking=False, favor_precision=True
-        )
-        tree = delete_by_link_density(
-            tree, "quote", backtracking=False, favor_precision=True
-        )
+    # if favor_precision:
+    #     # delete trailing titles
+    #     while len(tree) > 0 and (tree[-1].tag == "head"):
+    #         delete_element(tree[-1], keep_tail=False)
+    #     tree = delete_by_link_density(
+    #         tree, "head", backtracking=False, favor_precision=True
+    #     )
+    #     tree = delete_by_link_density(
+    #         tree, "quote", backtracking=False, favor_precision=True
+    #     )
     return tree
 
 
@@ -688,8 +688,8 @@ def _extract(
             factor = 1
         else:
             factor = 3
-        if not ptest or len("".join(ptest)) < options.min_extracted_size * factor:  # type: ignore[attr-defined]
-            potential_tags.add("div")
+        # if not ptest or len("".join(ptest)) < options.min_extracted_size * factor:  # type: ignore[attr-defined]
+        #     potential_tags.add("div")
         # polish list of potential tags
         if "ref" not in potential_tags:
             strip_tags(subtree, "ref")
@@ -738,11 +738,11 @@ def extract_content(
 
     # try parsing wild <p> elements if nothing found or text too short
     # todo: test precision and recall settings here
-    if len(result_body) == 0 or len(temp_text) < options.min_extracted_size:  # type: ignore[attr-defined]
-        result_body = recover_wild_text(
-            backup_tree, result_body, options, potential_tags
-        )
-        temp_text = " ".join(result_body.itertext()).strip()
+    # if len(result_body) == 0 or len(temp_text) < options.min_extracted_size:  # type: ignore[attr-defined]
+    #     result_body = recover_wild_text(
+    #         backup_tree, result_body, options, potential_tags
+    #     )
+    #     temp_text = " ".join(result_body.itertext()).strip()
     # filter output
     strip_elements(result_body, "done")
     strip_tags(result_body, "div")

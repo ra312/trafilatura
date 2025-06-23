@@ -66,36 +66,36 @@ BODY_XPATH = [
 # './/span[@class=""]', # instagram?
 
 
-COMMENTS_XPATH = [
-    XPath(x)
-    for x in (
-        """.//*[self::div or self::list or self::section][contains(@id|@class, 'commentlist')
-    or contains(@class, 'comment-page') or
-    contains(@id|@class, 'comment-list') or
-    contains(@class, 'comments-content') or contains(@class, 'post-comments')]""",
-        """.//*[self::div or self::section or self::list][starts-with(@id|@class, 'comments')
-    or starts-with(@class, 'Comments') or
-    starts-with(@id|@class, 'comment-') or
-    contains(@class, 'article-comments')]""",
-        """.//*[self::div or self::section or self::list][starts-with(@id, 'comol') or
-    starts-with(@id, 'disqus_thread') or starts-with(@id, 'dsq-comments')]""",
-        ".//*[self::div or self::section][starts-with(@id, 'social') or contains(@class, 'comment')]",
-    )
-]
-# or contains(@class, 'Comments')
+# COMMENTS_XPATH = [
+#     XPath(x)
+#     for x in (
+#         """.//*[self::div or self::list or self::section][contains(@id|@class, 'commentlist')
+#     or contains(@class, 'comment-page') or
+#     contains(@id|@class, 'comment-list') or
+#     contains(@class, 'comments-content') or contains(@class, 'post-comments')]""",
+#         """.//*[self::div or self::section or self::list][starts-with(@id|@class, 'comments')
+#     or starts-with(@class, 'Comments') or
+#     starts-with(@id|@class, 'comment-') or
+#     contains(@class, 'article-comments')]""",
+#         """.//*[self::div or self::section or self::list][starts-with(@id, 'comol') or
+#     starts-with(@id, 'disqus_thread') or starts-with(@id, 'dsq-comments')]""",
+#         ".//*[self::div or self::section][starts-with(@id, 'social') or contains(@class, 'comment')]",
+#     )
+# ]
+# # or contains(@class, 'Comments')
 
 
-REMOVE_COMMENTS_XPATH = [
-    XPath(
-        """.//*[self::div or self::list or self::section][
-    starts-with(translate(@id, "C","c"), 'comment') or
-    starts-with(translate(@class, "C","c"), 'comment') or
-    contains(@class, 'article-comments') or contains(@class, 'post-comments')
-    or starts-with(@id, 'comol') or starts-with(@id, 'disqus_thread')
-    or starts-with(@id, 'dsq-comments')
-    ]"""
-    )
-]
+# REMOVE_COMMENTS_XPATH = [
+#     XPath(
+#         """.//*[self::div or self::list or self::section][
+#     starts-with(translate(@id, "C","c"), 'comment') or
+#     starts-with(translate(@class, "C","c"), 'comment') or
+#     contains(@class, 'article-comments') or contains(@class, 'post-comments')
+#     or starts-with(@id, 'comol') or starts-with(@id, 'disqus_thread')
+#     or starts-with(@id, 'dsq-comments')
+#     ]"""
+#     )
+# ]
 # or self::span
 # or contains(@class, 'comment') or contains(@id, 'comment')
 
