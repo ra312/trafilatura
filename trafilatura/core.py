@@ -9,21 +9,18 @@ from copy import copy
 from typing import Any, Optional
 
 
-
-
 from .htmlprocessing import (
     build_html_output,
     convert_tags,
     tree_cleaning,
 )
-from .main_extractor import  extract_content
+from .main_extractor import extract_content
 from .settings import Document, Extractor
 from .utils import (
     load_html,
     normalize_unicode,
 )
 from .xml import build_json_output, control_xml_output, xmltotxt, xmltocsv
-
 
 
 LOGGER = logging.getLogger(__name__)
@@ -83,20 +80,18 @@ def determine_returnstring(document: Document, options: Extractor) -> str:
             header = ""
         returnstring = f"{header}{xmltotxt(document.body, options.formatting)}"
         if document.commentsbody is not None:
-            returnstring = \
-                f"{returnstring}\n{xmltotxt(document.commentsbody, options.formatting)}".strip()
+            returnstring = f"{returnstring}\n{xmltotxt(document.commentsbody, options.formatting)}".strip()
     # normalize Unicode format (defaults to NFC)
     return normalize_unicode(returnstring)
 
 
-
 def _internal_extraction(
-        filecontent: Any,
-        output_format: str,
-        include_tables: bool = True,
-        include_images: bool = False,
-        include_formatting: bool = False,
-        include_links: bool = False,
+    filecontent: Any,
+    output_format: str,
+    include_tables: bool = True,
+    include_images: bool = False,
+    include_formatting: bool = False,
+    include_links: bool = False,
 ) -> Optional[Document]:
     options = Extractor(
         output_format=output_format,
@@ -106,24 +101,16 @@ def _internal_extraction(
         tables=include_tables,
     )
 
-    
     try:
         tree = load_html(filecontent)
         if tree is None:
-            LOGGER.error("empty HTML tree: %s", url)
-            raise ValueError        
+            LOGGER.error("empty HTML tree: %s", tree)
+            raise ValueError
         document = Document()
 
         cleaned_tree = tree_cleaning(copy(tree), options)
-        cleaned_tree = convert_tags(cleaned_tree, options, options.url or document.url)
-
-        
-        # postbody  = trafilatura_sequence(
-        #     cleaned_tree,
-        #     options
-        # )
+        cleaned_tree = convert_tags(cleaned_tree, options)
         postbody = extract_content(cleaned_tree, options)
-        
 
     except (TypeError, ValueError):
         LOGGER.warning("discarding data: %s", options.source)
@@ -131,8 +118,6 @@ def _internal_extraction(
 
     # document.raw_text, document.commentsbody = temp_text, commentsbody
     document.body = postbody
-
-
 
     document.text = determine_returnstring(document, options)
     return document
