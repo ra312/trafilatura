@@ -10,9 +10,11 @@ from typing import Any, Dict, List, Optional, Set
 
 try:
     from os import sched_getaffinity
+
     CPU_COUNT = len(sched_getaffinity(0))
 except ImportError:
     from os import cpu_count
+
     CPU_COUNT = cpu_count() or 1
 
 from pathlib import Path
@@ -23,7 +25,9 @@ from .utils import line_processing
 
 
 SUPPORTED_FMT_CLI = ["csv", "json", "html", "markdown", "txt", "xml", "xmltei"]
-SUPPORTED_FORMATS = set(SUPPORTED_FMT_CLI) | {"python"}  # for bare_extraction() only
+SUPPORTED_FORMATS = set(SUPPORTED_FMT_CLI) | {
+    "python"
+}  # for bare_extraction() only
 
 
 def use_config(
@@ -155,7 +159,9 @@ class Extractor:
     def _set_source(self, url: Optional[str], source: Optional[str]) -> None:
         "Set the source attribute in a robust way."
         source = url or source
-        self.source = source and source.encode("utf-8", "replace").decode("utf-8")
+        self.source = source and source.encode("utf-8", "replace").decode(
+            "utf-8"
+        )
 
     def _set_format(self, chosen_format: str) -> None:
         "Store the format if supported and raise an error otherwise."
@@ -279,7 +285,7 @@ class Document:
         self.filedate: Optional[str] = filedate
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Document':
+    def from_dict(cls, data: Dict[str, Any]) -> "Document":
         "Set a series of attributes using a dictionary."
         doc = cls()
         for key, value in data.items():
@@ -434,7 +440,18 @@ BASIC_CLEAN_XPATH = XPath(
 )
 
 TAG_CATALOG = frozenset(
-    ["blockquote", "code", "del", "head", "hi", "lb", "list", "p", "pre", "quote"]
+    [
+        "blockquote",
+        "code",
+        "del",
+        "head",
+        "hi",
+        "lb",
+        "list",
+        "p",
+        "pre",
+        "quote",
+    ]
 )
 # + list(CUT_EMPTY_ELEMS)
 
