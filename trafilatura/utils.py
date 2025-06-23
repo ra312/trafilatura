@@ -10,7 +10,7 @@ import re
 
 from functools import lru_cache
 from itertools import islice
-from typing import Any, cast, List, Literal, Optional, Tuple, Union
+from typing import Any, cast, List, Literal, Optional
 from unicodedata import normalize
 
 try:

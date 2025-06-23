@@ -39,8 +39,6 @@ from .utils import (
 from .xml import delete_element
 from .xpaths import (
     BODY_XPATH,
-    COMMENTS_DISCARD_XPATH,
-    COMMENTS_XPATH,
     DISCARD_IMAGE_ELEMENTS,
     OVERALL_DISCARD_XPATH,
     PRECISION_DISCARD_XPATH,
@@ -98,44 +96,13 @@ def handle_titles(element: _Element, options: Extractor) -> Optional[_Element]:
 def handle_formatting(
     element: _Element, options: Extractor
 ) -> Optional[_Element]:
-    """Process formatting elements (b, i, etc. converted to hi) found
-    outside of paragraphs"""
+    """
+    Process formatting elements (b, i, etc. converted to hi) found
+    outside of paragraphs
+    """
+    
     formatting = process_node(element, options)
-    # if formatting is None:  #  and len(element) == 0
-    #     return None
-
-    # repair orphan elements
-    # if formatting is None:
-    #    formatting = Element(element.tag)
-    #     return None
-    # if len(element) > 0:
-    #    for child in element.iter('*'):
-    #        if child.tag not in potential_tags:
-    #            LOGGER.debug('unexpected in title: %s %s %s', child.tag, child.text, child.tail)
-    #            continue
-    #        processed_child = handle_textnode(child, options, comments_fix=False)
-    #        if processed_child is not None:
-    #            formatting.append(processed_child)
-    #        child.tag = 'done'
-    # if text_chars_test(element.text) is True:
-    #    processed_child.text = trim(element.text)
-    # if text_chars_test(element.tail) is True:
-    #    processed_child.tail = trim(element.tail)
-    # if len(element) == 0:
-    #    processed_element = process_node(element, options)
-    # children
-    # else:
-    #    processed_element = Element(element.tag)
-    #    processed_element.text, processed_element.tail = element.text, element.tail
-    #    for child in element.iter('*'):
-    #        processed_child = handle_textnode(child, options, comments_fix=False)
-    #        if processed_child is not None:
-    #            processed_element.append(processed_child)
-    #        child.tag = 'done'
-    # repair orphan elements
-    # shorter code but triggers warning:
-    # parent = element.getparent() or element.getprevious()
-
+    
     parent = element.getparent()
     if parent is None:
         parent = element.getprevious()
@@ -799,40 +766,3 @@ def process_comments_node(
             #    return None
             return processed_element
     return None
-
-
-def extract_comments(
-    tree: HtmlElement, options: Extractor
-) -> Tuple[_Element, str, int, HtmlElement]:
-    "Try to extract comments out of potential sections in the HTML."
-    comments_body = Element("body")
-    # define iteration strategy
-    potential_tags = set(TAG_CATALOG)  # 'span'
-    # potential_tags.add('div') trouble with <div class="comment-author meta">
-    for expr in COMMENTS_XPATH:
-        # select tree if the expression has been found
-        subtree = next((s for s in expr(tree) if s is not None), None)
-        if subtree is None:
-            continue
-        # prune
-        subtree = prune_unwanted_nodes(subtree, COMMENTS_DISCARD_XPATH)
-        # todo: unified stripping function, taking include_links into account
-        strip_tags(subtree, "a", "ref", "span")
-        # extract content
-        # for elem in subtree.xpath('.//*'):
-        #    processed_elem = process_comments_node(elem, potential_tags)
-        #    if processed_elem is not None:
-        #        comments_body.append(processed_elem)
-        # processed_elems = (process_comments_node(elem, potential_tags, options) for elem in
-        #                    subtree.xpath('.//*'))
-        comments_body.extend(
-            filter(lambda x: x is not None, (process_comments_node(e, potential_tags, options) for e in subtree.xpath(".//*"))))  # type: ignore[arg-type]
-        # control
-        if len(comments_body) > 0:  # if it has children
-            LOGGER.debug(expr)
-            # remove corresponding subtree
-            delete_element(subtree, keep_tail=False)
-            break
-    # lengths
-    temp_comments = " ".join(comments_body.itertext()).strip()
-    return comments_body, temp_comments, len(temp_comments), tree
