@@ -10,20 +10,13 @@ import re
 
 from functools import lru_cache
 from itertools import islice
-from typing import Any, cast, List, Literal, Optional
+from typing import Any, cast, Literal, Optional
 from unicodedata import normalize
 
-try:
-    from cchardet import detect as cchardet_detect  # type: ignore
-except ImportError:
-    cchardet_detect = None
 
-from charset_normalizer import from_bytes
 from lxml.etree import _Element
 from lxml.html import HtmlElement, HTMLParser, fromstring
 
-# response types
-from urllib3.response import HTTPResponse
 
 
 LOGGER = logging.getLogger(__name__)
@@ -176,39 +169,24 @@ def load_html(htmlobject: Any) -> Optional[HtmlElement]:
     """Load object given as input and validate its type
     (accepted: lxml.html tree, trafilatura/urllib3 response, bytestring and string)
     """
-    # use tree directly
     if isinstance(htmlobject, HtmlElement):
         return htmlobject
-    # use trafilatura or urllib3 responses directly
-    if isinstance(htmlobject, HTTPResponse) or hasattr(htmlobject, "data"):
-        htmlobject = htmlobject.data
-    # do not accept any other type after this point
     if not isinstance(htmlobject, (bytes, str)):
         raise TypeError("incompatible input type", type(htmlobject))
-    # start processing
     tree = None
-    # try to guess encoding and decode file: if None then keep original
-    # htmlobject = decode_file(htmlobject)
-    # sanity checks
     beginning = htmlobject[:50].lower()
     check_flag = is_dubious_html(beginning)
-    # repair first
     htmlobject = repair_faulty_html(htmlobject, beginning)
-    # first pass: use Unicode string
     fallback_parse = False
     try:
         tree = fromstring(htmlobject, parser=HTML_PARSER)
     except ValueError:
-        # "Unicode strings with encoding declaration are not supported."
         tree = fromstring_bytes(htmlobject)
         fallback_parse = True
     except Exception as err:  # pragma: no cover
         LOGGER.error("lxml parsing failed: %s", err)
-    # second pass: try passing bytes to LXML
     if (tree is None or len(tree) < 1) and not fallback_parse:
         tree = fromstring_bytes(htmlobject)
-    # rejection test: is it (well-formed) HTML at all?
-    # log parsing errors
     if tree is not None and check_flag is True and len(tree) < 2:
         LOGGER.error(
             "parsed tree length: %s, wrong data type or not valid HTML",
@@ -218,7 +196,7 @@ def load_html(htmlobject: Any) -> Optional[HtmlElement]:
     return tree
 
 
-@lru_cache(maxsize=2**14)  # sys.maxunicode = 1114111
+@lru_cache(maxsize=2**14)
 def return_printables_and_spaces(char: str) -> str:
     "Return a character if it belongs to certain classes"
     return char if char.isprintable() or char.isspace() else ""
